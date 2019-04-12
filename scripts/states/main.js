@@ -1,26 +1,54 @@
-import ConfigManager from '../config';
-
 import Base from './base';
+import ConfigManager from '../config';
+import Words from '../words';
 
+/**
+ * Main Game Modes
+ */
+export const MODES = {
+    STUDY: 'study',
+    TEST: 'test'
+}
+
+/**
+ * Default State Options
+ */
+const defaultOptions = {
+    category: "",
+    words: []
+}
+
+/**
+ * Main State
+ * This is the main state (study|test)
+ */
 class Main extends Base
 {
 
-    init(params)
+    /**
+     * Initialize
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#init
+     */
+    init(options = {})
     {
-        this.modes = {
-            STUDY: 'study',
-            TEST: 'test'
-        }
-
-        this.params = params;
+        // Set config     
         this.config = ConfigManager.getConfig();
-        this.category = params.category;
-        this.mode = params.mode ? params.mode : this.modes.STUDY;
 
+        // Set the options to the default
+        this.options = Object.assign({}, defaultOptions, options);
+
+        // Set properties 
+        this.category = options.category;
+        this.words = this.options.words.length > 0 ? this.options.words : Words.getWords(this.category, 10);
+        this.mode = options.mode ? options.mode : MODES.STUDY;
+
+        // Quiz properties
         this.quizQuestions = [];
         this.quizNumber = 0;
-        this.quizNumberMax = this.category.words.length - 1;
+        this.quizNumberMax = this.words.length - 1;
 
+        // Quiz stats
         this.answeredQuizQuestions = [];
         this.skippedQuizQuestions = [];
         this.wrongQuizQuestions = [];
@@ -33,10 +61,8 @@ class Main extends Base
         this.audioPlayProgressMask = null;
         this.quizQuestionText = null;
         this.quizStudyText = null;
-
         this.studyNextWordButton = null;
         this.studyButtons = null;
-
         this.answersGroup = null;
         this.answerDialog = null;
         this.summaryDialog = null;
@@ -68,14 +94,17 @@ class Main extends Base
         this.answerDialog = dialog;
     }
 
+
     /**
-     * Preload Scene Elements
+     * Preload
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#preload
      */
     preload()
     {
         super.preload();
 
-        const words = this.category.words;
+        const words = this.words;
         for (let word of words)
         {
             this.load.audio(word.audio, word.audio);
@@ -104,7 +133,7 @@ class Main extends Base
      */
     buildQuestions()
     {
-        let words = this.category.words;
+        let words = this.words;
         const wordCount = words.length;
 
         words = this.shuffleArray(words);
@@ -151,7 +180,7 @@ class Main extends Base
 
         this.playClickAudio();
         this.answeredQuizQuestions.push(this.quizNumber);
-        
+
         if (answer.text.toLowerCase().indexOf(questionWord.translation.toLowerCase()) != -1)
         {
             this.showCorrectDialog();
@@ -167,32 +196,25 @@ class Main extends Base
 
         setTimeout(() =>
         {
-            this.gotoNextQuiz();
+            this.gotoNextQuestion();
             this.answerDialog.visible = false;
-        }, 2000);
-    }
-
-    /**
-     * Start
-     */
-    start()
-    {
-        this.startTime = Date.now();
+        }, 1200);
     }
 
     /**
      * Restart the scene
      */
-    restart(mode)
+    restart(mode = false, words = false)
     {
         if (mode)
         {
-            this.params.mode = mode;
+            this.options.mode = mode;
         }
-        this.game.state.start(this.game.state.current, true, false, this.params);
+        
+        this.options.words = words;
+
+        this.game.state.start(this.game.state.current, true, false, this.options);
     }
-
-
 
     /**
      * Create Summary Dialog
@@ -205,31 +227,17 @@ class Main extends Base
         summaryTitle.anchor.setTo(0.5, 0.5);
         summaryTitle.fixedToCamera = true;
 
-        const correctQuestions = this.game.add.text(this.game.width / 2, 500, "1/2", { font: `55px ${ this.config.fonts.primary }` });
+        const correctQuestions = this.game.add.text(this.game.width / 2, 300, "1/2", { font: `55px ${ this.config.fonts.primary }` });
         correctQuestions.anchor.setTo(0.5, 0.5);
         correctQuestions.name = "correct-questions";
         correctQuestions.fixedToCamera = true;
 
-        const timeToComplete = this.game.add.text(this.game.width / 2, 600, "1:00", { font: `55px ${ this.config.fonts.primary }` });
+        const timeToComplete = this.game.add.text(this.game.width / 2, 400, "1:00", { font: `55px ${ this.config.fonts.primary }` });
         timeToComplete.anchor.setTo(0.5, 0.5);
         timeToComplete.name = "time-to-complete";
         timeToComplete.fixedToCamera = true;
 
-        const categories = this.game.add.text(this.game.width / 2, this.game.height - 100, "Categories", { font: `55px ${ this.config.fonts.primary }` });
-        categories.anchor.setTo(0.5, 0.5);
-        categories.fixedToCamera = true;
-        categories.inputEnabled = true;
-        categories.events.onInputOver.add(() => { categories.fill = this.config.colours.primary });
-        categories.events.onInputOut.add(() => { categories.fill = '#000000' });
-        categories.events.onInputDown.add(() => { categories.fill = this.config.colours.primary });
-        categories.events.onInputUp.add(() =>
-        {
-            this.playClickAudio()
-            categories.fill = '#000000';
-            this.game.state.start("Categories");
-        })
-
-        const study = this.game.add.text(this.game.width / 2, this.game.height - 200, "Study", { font: `55px ${ this.config.fonts.primary }` });
+        const study = this.game.add.text(this.game.width / 2, this.game.height - 180, "Study", { font: `45px ${ this.config.fonts.primary }` });
         study.anchor.setTo(0.5, 0.5);
         study.fixedToCamera = true;
         study.inputEnabled = true;
@@ -240,10 +248,10 @@ class Main extends Base
         {
             this.playClickAudio()
             study.fill = '#000000';
-            this.restart(this.modes.STUDY);
+            this.restart(MODES.STUDY, this.words);
         })
 
-        const retry = this.game.add.text(this.game.width / 2, this.game.height - 300, "Retry Quiz", { font: `55px ${ this.config.fonts.primary }` });
+        const retry = this.game.add.text(this.game.width / 2, this.game.height - 260, "Retry", { font: `45px ${ this.config.fonts.primary }` });
         retry.anchor.setTo(0.5, 0.5);
         retry.fixedToCamera = true;
         retry.inputEnabled = true;
@@ -254,17 +262,31 @@ class Main extends Base
         {
             this.playClickAudio()
             retry.fill = '#000000';
-            this.restart(this.modes.TEST);
+            this.restart(MODES.TEST, this.words);
         })
 
+        let nextSet = this.game.add.text(this.game.width / 2, this.game.height - 340, "Next", { font: `45px ${ this.config.fonts.primary }` });
+        nextSet.anchor.setTo(0.5, 0.5);
+        nextSet.fixedToCamera = true;
+        nextSet.inputEnabled = true;
+        nextSet.events.onInputOver.add(() => { nextSet.fill = this.config.colours.primary });
+        nextSet.events.onInputOut.add(() => { nextSet.fill = '#000000' });
+        nextSet.events.onInputDown.add(() => { nextSet.fill = this.config.colours.primary });
+        nextSet.events.onInputUp.add(() =>
+        {
+            this.playClickAudio()
+            nextSet.fill = '#000000';
+            this.restart(MODES.STUDY);
+        });
+        
         const summaryDialog = this.game.add.group();
         summaryDialog.add(dialogBackground);
         summaryDialog.add(summaryTitle);
         summaryDialog.add(correctQuestions);
         summaryDialog.add(timeToComplete);
-        summaryDialog.add(categories);
         summaryDialog.add(study);
         summaryDialog.add(retry);
+        summaryDialog.add(nextSet);
 
         summaryDialog.visible = false;
 
@@ -349,7 +371,7 @@ class Main extends Base
         gameTitle.anchor.setTo(0.5, 0.5);
         gameTitle.fixedToCamera = true;
 
-        const categoryTitle = game.add.text(centerX, 120, this.category.name, { font: `50px ${ this.config.fonts.primary }` });
+        const categoryTitle = game.add.text(centerX, 120, this.category, { font: `50px ${ this.config.fonts.primary }` });
         categoryTitle.fill = "#3BA185";
         categoryTitle.anchor.setTo(0.5, 0.5);
         categoryTitle.fixedToCamera = true;
@@ -385,13 +407,16 @@ class Main extends Base
         this.quizNumberArrowIndicator = quizNumberArrowIndicator;
     }
 
-
+    /**
+     * Creates Study Buttons
+     * These are the main buttons in study mode
+     * Next Word | Begin Quiz
+     */
     createStudyButtons()
     {
         const studyButtons = this.game.add.group();
         studyButtons.x = 0;
         studyButtons.y = 800;
-
 
         const studyNextWordButton = this.game.add.text(this.game.width / 2, 0, "Next Word", { font: `40px ${ this.config.fonts.primary }` });
         studyNextWordButton.anchor.setTo(0.5, 0.5);
@@ -403,7 +428,7 @@ class Main extends Base
             studyNextWordButton.fill = '#000000';
             this.playClickAudio();
             this.skippedQuizQuestions.push(this.quizNumber);
-            this.gotoNextQuiz();
+            this.gotoNextQuestion();
         });
 
         const startTest = this.game.add.text(this.game.width / 2, 100, "Begin Quiz", { font: `40px ${ this.config.fonts.primary }` });
@@ -414,7 +439,7 @@ class Main extends Base
         startTest.events.onInputUp.add(() =>
         {
             this.playClickAudio();
-            this.restart(this.modes.TEST);
+            this.restart(MODES.TEST, this.words);
         });
 
         studyButtons.add(studyNextWordButton);
@@ -426,12 +451,13 @@ class Main extends Base
 
     /**
      * Create Skip Button
+     * Allows the user to skip the question
      */
     createSkipButton()
     {
         const skipButton = this.add.group();
 
-        const text = this.game.add.text(0, 0, "SKIP", { font: `30px ${ this.config.fonts.primary }` });
+        const text = this.game.add.text(0, 0, "Skip", { font: `30px ${ this.config.fonts.primary }` });
         text.anchor.setTo(0, 0.5);
 
         const triangle = this.game.add.image(0, 0, 'triangle');
@@ -461,22 +487,23 @@ class Main extends Base
             text.fill = '#000000';
             this.playClickAudio();
             this.skippedQuizQuestions.push(this.quizNumber);
-            this.gotoNextQuiz();
+            this.gotoNextQuestion();
         });
 
         text.input.useHandCursor = true;
 
         this.skipButton = skipButton;
     }
-    
+
     /**
      * Create Skip Button
+     * Allows the user to go back to categories
      */
     createCategoriesButton()
     {
         const categories = this.add.group();
 
-        const text = this.game.add.text(0, 0, "CATEGORIES", { font: `30px ${ this.config.fonts.primary }` });
+        const text = this.game.add.text(0, 0, "Categories", { font: `30px ${ this.config.fonts.primary }` });
         text.anchor.setTo(0, 0.5);
 
         const triangle = this.game.add.image(0, 0, 'triangle');
@@ -513,9 +540,9 @@ class Main extends Base
     }
 
     /**
-     * Goto Next Quiz
+     * Goto Next Question
      */
-    gotoNextQuiz()
+    gotoNextQuestion()
     {
         if (this.answeredQuizQuestions.length === this.quizQuestions.length)
         {
@@ -679,6 +706,8 @@ class Main extends Base
 
     /**
      * Update
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#update
      */
     update()
     {
@@ -701,7 +730,7 @@ class Main extends Base
         this.quizStudyText.visible = false;
         this.studyButtons.visible = false;
         this.skipButton.visible = false;
-        if (this.mode === this.modes.STUDY)
+        if (this.mode === MODES.STUDY)
         {
             this.quizStudyText.visible = true;
             this.studyButtons.visible = true;
@@ -725,20 +754,23 @@ class Main extends Base
 
     /**
      * Create
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#craete
      */
     create()
     {
         this.createProgressIndicators();
         this.createQuizGroup();
         this.createSkipButton();
-        this.createCategoriesButton();
         this.createStudyButtons();
         this.setQuizNumber(0);
         this.createSummaryDialog();
+        this.createCategoriesButton();
         this.createTitle();
         this.createAnswerDialog();
         this.createRotateDevice();
-        this.start();
+
+        this.startTime = Date.now();
     }
 }
 

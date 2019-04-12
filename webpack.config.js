@@ -1,16 +1,23 @@
 const path = require("path");
 const fs = require("fs");
-const appRootPath = path.join(__dirname);
 
-// Phaser webpack config
+/*--------------- PATHS ------------------ */
+const appRootPath = path.join(__dirname);
+const outputPath = path.resolve(appRootPath, "www/");
+const assetsPath = path.resolve(appRootPath, "assets");
+
+/*-------------- PLUGINS ------------------*/
+const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+/*-------------- PHASER -------------------*/
 const phaserModule = path.join(appRootPath, "/node_modules/phaser-ce/")
 const phaser = path.join(phaserModule, "build/custom/phaser-split.js")
 const pixi = path.join(phaserModule, "build/custom/pixi.js")
 const p2 = path.join(phaserModule, "build/custom/p2.js")
 
-// Plugins
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-
+/*-------------- CONFIG -------------------*/
 module.exports = {
     mode: "development",
     entry: {
@@ -18,11 +25,13 @@ module.exports = {
         vendor: ["pixi", "p2", "phaser"]
     },
     output: {
-        path: path.resolve(appRootPath, "dist/"),
+        path: outputPath,
         filename: "[name].js"
     },
     plugins: [
         new HtmlWebpackPlugin(),
+        new CopyPlugin([{ from: assetsPath, to: path.join(outputPath,"assets") }]),
+        new CleanWebpackPlugin({cleanOnceBeforeBuildPatterns:[outputPath]})
     ],
     devServer: {
         host: '0.0.0.0',
@@ -31,7 +40,7 @@ module.exports = {
         {
 
             var bodyParser = require('body-parser');
-            
+
             app.use(bodyParser.json());
 
             app.get("/get/some-data", function (req, res)

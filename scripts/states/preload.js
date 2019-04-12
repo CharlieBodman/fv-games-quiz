@@ -1,9 +1,17 @@
 import configManager from '../config';
 import Base from './base';
 
+/**
+ * Preload state
+ */
 class Preload extends Base
 {
 
+    /**
+     * Initialize
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#init
+     */
     init()
     {
         this.config = configManager.getConfig();
@@ -11,11 +19,16 @@ class Preload extends Base
         this.game.add.text(0, this.game.height, "First Voices", { font: `20px ${ this.config.fonts.secondary }` });
     }
 
+    /**
+     * Preload
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#preload
+     */
     preload()
     {
         this.fadeIn();
         super.preload();
-        
+
         const configImages = this.config.images;
 
         this.load.image('fullscreen', configImages.fullscreen);
@@ -35,6 +48,11 @@ class Preload extends Base
         this.load.spritesheet('rain', configImages.rain, 15, 15);
     }
 
+    /**
+     * Create
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#create
+     */
     create()
     {
         this.game.state.start("GameTitle");

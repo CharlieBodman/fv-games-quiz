@@ -1,14 +1,25 @@
-import configManager from '../config';
+import Config from '../config';
 import Base from './base';
 import Words from '../words';
 
+
+/**
+ * Categories Scene
+ * This will display the word categories
+ */
 class Categories extends Base
 {
 
+    /**
+     * Initialize
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#init
+     */
     init()
     {
-        this.config = configManager.getConfig();
-
+        this.config = Config.getConfig();
+        
+        // Enable camera scrolling
         this.game.kineticScrolling = this.game.plugins.add(Phaser.Plugin.KineticScrolling);
 
         //Configure the plugin
@@ -17,31 +28,41 @@ class Categories extends Base
             verticalWheel: true,
             deltaWheel: 90,
         });
-
-        this.optionsDialog = null;
+        
+        // Properties
+        this.categoryOptionsDialog = null;
         this.selectedCategory = null;
     }
 
-
+    /**
+     * Create
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#create
+     */
     create()
     {
         super.create();
         this.createCategories();
-        this.createKineticScroll();
-        this.createGradientMask(0, 180, '#FFFFFF', 'rgba(255,255,255,0)');
-        this.createGradientMask(0, this.game.height - 50, 'rgba(255,255,255,0)', '#FFFFFF', { x: 0, y: 1 });
+        this.createGradientImage(0, 180, '#FFFFFF', 'rgba(255,255,255,0)');
+        this.createGradientImage(0, this.game.height - 50, 'rgba(255,255,255,0)', '#FFFFFF', { x: 0, y: 1 });
         this.topScrollIndicator = this.createScrollIndicator(this.game.width / 2, 170);
         this.bottomScrollIndicator = this.createScrollIndicator(this.game.width / 2, this.game.height - 40, { x: 1, y: -1 });
-        this.createOptionsDialog();
+        this.createCategoryOptionsDialog();
         this.createtitle();
+        
+        this.startKineticScroll();
     }
 
-    createOptionsDialog()
+    /**
+     * Creates category options dialog
+     * This will show once a categories has been selected
+     */
+    createCategoryOptionsDialog()
     {
-        const optionsDialog = this.game.add.group();
+        const categoryOptionsDialog = this.game.add.group();
         const background = this.createDialogBackground();
 
-        const categoryTitle = this.game.add.text(this.game.width / 2, 0, "People", { font: `50px ${ this.config.fonts.primary }` });
+        const categoryTitle = this.game.add.text(this.game.width / 2, 0, "Category Title", { font: `50px ${ this.config.fonts.primary }` });
         categoryTitle.fill = "#000000";
         categoryTitle.name = "title";
         categoryTitle.anchor.setTo(0.5, 0.5);
@@ -60,8 +81,7 @@ class Categories extends Base
             this.playClickAudio()
             studyButton.fill = '#000000';
             this.game.state.start("Main", true, false, { category: this.selectedCategory, mode: "study" });
-        })
-
+        });
 
         const startQuiz = this.game.add.text(this.game.width / 2, 0, "Begin Quiz", { font: `65px ${ this.config.fonts.primary }` });
         startQuiz.fill = "#000000";
@@ -78,25 +98,34 @@ class Categories extends Base
             this.game.state.start("Main", true, false, { category: this.selectedCategory, mode: "test" });
         })
 
+        categoryOptionsDialog.add(background);
+        categoryOptionsDialog.add(categoryTitle);
+        categoryOptionsDialog.add(studyButton);
+        categoryOptionsDialog.add(startQuiz);
+        categoryOptionsDialog.visible = false;
+        categoryOptionsDialog.fixedToCamera = true;
 
-        optionsDialog.add(background);
-        optionsDialog.add(categoryTitle);
-        optionsDialog.add(studyButton);
-        optionsDialog.add(startQuiz);
-        optionsDialog.visible = false;
-        optionsDialog.fixedToCamera = true;
-
-        this.optionsDialog = optionsDialog;
-
+        this.categoryOptionsDialog = categoryOptionsDialog;
     }
 
-    showOptionsDialog()
+    /**
+     * Shows the category options 
+     */
+    showCategoryOptionsDialog()
     {
-        this.optionsDialog.getByName('title').text = this.selectedCategory.name;
-        this.optionsDialog.visible = true;
+        this.categoryOptionsDialog.getByName('title').text = this.selectedCategory;
+        this.categoryOptionsDialog.visible = true;
     }
 
-    createGradientMask(x, y, topColour, bottomColour, anchor = { x: 0, y: 0 })
+    /**
+     * Creates a gradient image
+     * @param {number} x
+     * @param {number} y 
+     * @param {string} topColour - top gradient colour
+     * @param {string} bottomColour - bottom gradient colour
+     * @param {object} anchor - anchor position
+     */
+    createGradientImage(x, y, topColour, bottomColour, anchor = { x: 0, y: 0 })
     {
         var myBmp = this.game.add.bitmapData(this.game.width, 50);
         var myGrd = myBmp.context.createLinearGradient(0, 0, 0, myBmp.height);
@@ -110,11 +139,19 @@ class Categories extends Base
         gradient.anchor.setTo(anchor.x, anchor.y);
     }
 
-    createKineticScroll()
+    /**
+     * Starts the kinetic scrolling
+     */
+    startKineticScroll()
     {
         this.game.kineticScrolling.start();
     }
 
+    /**
+     * Update
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#update
+     */
     update()
     {
         super.update();
@@ -138,6 +175,9 @@ class Categories extends Base
         }
     }
 
+    /**
+     * Creates title of the game
+     */
     createtitle()
     {
         const game = this.game;
@@ -154,6 +194,9 @@ class Categories extends Base
         categoryTitle.fixedToCamera = true;
     }
 
+    /**
+     * Creates category listing
+     */
     createCategories()
     {
         // Categories Group
@@ -171,7 +214,7 @@ class Categories extends Base
         categoriesGroup.mask = mask;
 
         // Get Category Names
-        const categoryNames = Object.keys(Words.groups);
+        const categoryNames = Object.keys(Words.getGroups());
 
         for (let i = 0; i < categoryNames.length; i++)
         {
@@ -185,18 +228,24 @@ class Categories extends Base
             // Add kinetic click events
             this.game.kineticScrolling.addClickEvents(categoryText, {
                 down: () => { categoryText.fill = "#3BA185"; },
-                up: () => { categoryText.fill = "#000000"; this.chooseCategory({ name: categoryName }) },
+                up: () => { categoryText.fill = "#000000"; this.chooseCategory(categoryName) },
             });
 
             // Use cursor hand
             categoryText.input.useHandCursor = true;
             categoriesGroup.add(categoryText);
         }
-        
+
         // Set scroll bounds
         this.game.world.setBounds(0, 0, this.game.width, (80 * categoryNames.length) + 250);
     }
 
+    /**
+     * Creates a scroll indicator
+     * @param {number} x 
+     * @param {number} y 
+     * @param {object} scale {x,y}
+     */
     createScrollIndicator(x, y, scale = { x: 1, y: 1 })
     {
         const sizeScale = 0.5;
@@ -210,13 +259,22 @@ class Categories extends Base
         return scrollIndicator;
     }
 
+    /**
+     * Choose a category
+     * @param {string} category 
+     */
     chooseCategory(category)
     {
         this.playClickAudio();
         this.selectedCategory = category;
-        this.showOptionsDialog();
+        this.showCategoryOptionsDialog();
     }
 
+    /**
+     * Shutdown
+     * Part of the Phaser LifeCycle
+     * https://phaser.io/docs/2.6.2/Phaser.State.html#shutdown
+     */
     shutdown()
     {
         this.game.kineticScrolling.stop();
