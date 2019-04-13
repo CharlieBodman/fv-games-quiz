@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs");
 
 /*--------------- PATHS ------------------ */
-const appRootPath = path.join(__dirname);
+const appRootPath = path.join(__dirname,"..");
 const outputPath = path.resolve(appRootPath, "www/");
 const assetsPath = path.resolve(appRootPath, "assets");
 
@@ -26,12 +26,12 @@ module.exports = {
     },
     output: {
         path: outputPath,
-        filename: "[name].js"
+        filename: path.join("scripts","[name].js")
     },
     plugins: [
         new HtmlWebpackPlugin(),
-        new CopyPlugin([{ from: assetsPath, to: path.join(outputPath,"assets") }]),
-        new CleanWebpackPlugin({cleanOnceBeforeBuildPatterns:[outputPath]})
+        new CopyPlugin([{ from: assetsPath, to: path.join(outputPath, "assets") }]),
+        new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [outputPath] })
     ],
     devServer: {
         host: '0.0.0.0',

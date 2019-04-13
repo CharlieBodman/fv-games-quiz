@@ -4,8 +4,8 @@
   "description": "",
   "main": "scripts/game.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js --progres --colors --mode production",
-    "develop": "webpack-dev-server --config webpack.config.js --progress --colors --content-base www/",
+    "build": "webpack --config webpack/webpack.config.js --progres --colors --mode production",
+    "develop": "webpack-dev-server --config webpack/webpack.config.js --progress --colors --content-base www/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
