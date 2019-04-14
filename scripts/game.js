@@ -1,5 +1,3 @@
-import styles from '../styles/stylesheet.css';
-
 /*------------------------- STATES ----------------------*/
 import Boot from './states/boot';
 import Preload from './states/preload';

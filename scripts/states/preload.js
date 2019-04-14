@@ -1,5 +1,6 @@
 import configManager from '../config';
 import Base from './base';
+import WebFont from 'webfontloader';
 
 /**
  * Preload state
@@ -27,9 +28,18 @@ class Preload extends Base
     preload()
     {
         this.fadeIn();
+
         super.preload();
 
         const configImages = this.config.images;
+
+        // Load webfonts
+        WebFont.load({
+            custom: {
+                families: ['aboriginal_sansbold', 'chunkfiveroman'],
+                urls: ['./assets/fonts/fonts.css']
+            }
+        });
 
         this.load.image('fullscreen', configImages.fullscreen);
         this.load.image('unfullscreen', configImages.unfullscreen);

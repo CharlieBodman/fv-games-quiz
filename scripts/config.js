@@ -1,6 +1,6 @@
 let defaultGameConfig = {
 
-    enpoints:{
+    endpoints:{
         words:"/get/words"
     },
     

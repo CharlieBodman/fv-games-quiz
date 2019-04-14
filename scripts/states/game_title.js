@@ -19,6 +19,7 @@ class GameTitle extends Base
     init()
     {
         this.config = Config.getConfig();
+        this.endpoint = this.config.endpoints.word;
         this.loadingDisplay = null;
         this.startButton = null;
     }
@@ -150,22 +151,16 @@ class GameTitle extends Base
      */
     async fetchWordsAsync(retries = 0)
     {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const dialect = urlParams.get('dialect');
+        
         try 
         {
-            const response = await fetch('/get/some-data');
+            const response = await fetch(`${this.config.endpoints.words}?dialect=${dialect}`);
+            
             const responseJson = await response.json();
-
-            for (var i = 0; i < 2000; i++)
-            {
-                responseJson.words.push({
-                    "group": "Things",
-                    "word": "Word " + i,
-                    "translation": "Translation " + i,
-                    "audio": "assets/sounds/i_am_going_to_sit.mp3",
-                    "image": "https://preprod.firstvoices.com/nuxeo/nxfile/default/ea2bd6b7-6411-48fc-9d09-4324c3a1d9c0/picture:views/0/content/Thumbnail_farmer-vb.jpg"
-                });
-            }
-
+            
             WordsManager.add(responseJson.words);
 
             this.loadingDisplay.visible = false;
@@ -173,6 +168,7 @@ class GameTitle extends Base
         }
         catch (error)
         {
+            console.log(error);
             /**
              * Here we are going to try fetching words again, 
              * This will utilize a back off retry implementation

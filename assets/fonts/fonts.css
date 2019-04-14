@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'aboriginal_sansbold';
+    src: url('aboriginalsansbold-webfont.woff2') format('woff2'),
+         url('aboriginalsansbold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'chunkfiveroman';
+    src: url('chunkfive.woff2') format('woff2'),
+         url('chunkfive.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
