@@ -1,6 +1,6 @@
 import Config from '../config';
 import Base from './base';
-import Words from '../words';
+import WordsManager from '../words_manager';
 import wait from '../utils/wait';
 
 /**
@@ -166,7 +166,7 @@ class GameTitle extends Base
                 });
             }
 
-            Words.add(responseJson.words);
+            WordsManager.add(responseJson.words);
 
             this.loadingDisplay.visible = false;
             this.startButton.visible = true;

@@ -4,7 +4,7 @@ import shuffle from './utils/shuffle';
 /**
  * Words 
  */
-class Words
+class WordsManager
 {
     constructor()
     {
@@ -124,4 +124,4 @@ class Words
     }
 }
 
-export default new Words();
+export default new WordsManager();

@@ -45,7 +45,7 @@ module.exports = {
 
             app.get("/get/some-data", function (req, res)
             {
-                var content = fs.readFileSync(path.resolve(appRootPath, "sample_data", "response.json"));
+                var content = fs.readFileSync(path.resolve(__dirname, "response_data", "response.json"));
 
                 res.send(content);
             })

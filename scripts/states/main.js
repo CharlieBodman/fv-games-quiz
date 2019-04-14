@@ -1,6 +1,6 @@
 import Base from './base';
 import ConfigManager from '../config';
-import Words from '../words';
+import WordsManager from '../words_manager';
 
 /**
  * Main Game Modes
@@ -40,7 +40,7 @@ class Main extends Base
 
         // Set properties 
         this.category = options.category;
-        this.words = this.options.words.length > 0 ? this.options.words : Words.getWords(this.category, 10);
+        this.words = this.options.words.length > 0 ? this.options.words : WordsManager.getWords(this.category, 10);
         this.mode = options.mode ? options.mode : MODES.STUDY;
 
         // Quiz properties

@@ -12,27 +12,16 @@ import KineticPlugin from './libs/phaser-kinetic-scrolling-plugin';
 import GameConfig from './config';
 
 
-/**
- * Game initializer
- */
-export default {
-
-    /**
-     * Game Instance
-     */
-    gameInstance: null,
-
+class Game
+{
     /**
      * Intiialize game with config
      * @param {Element} containerElemement - element to inject canvas into
      * @param {Object} config to extend
      */
-    init: function (containerElement, config)
+    init(containerElement, config)
     {
-        if (this.gameInstance != null)
-        {
-            this.destroy();
-        }
+        this.destroy();
 
         KineticPlugin(Phaser);
 
@@ -46,16 +35,22 @@ export default {
         game.state.add("Categories", Categories);
         game.state.add("Main", Main);
         game.state.start("Boot");
-
-        this.gameInstance = game;
-    },
+        
+        this.game = game;
+    }
 
     /**
      * Destroy
      */
-    destroy: function ()
+    destroy()
     {
-        this.gameInstance.destroy();
-        this.gameInstance = null;
+        if (this.game)
+        {
+            this.gameInstance.destroy();
+            this.gameInstance = null;
+        }
     }
 }
+
+
+export default new Game();

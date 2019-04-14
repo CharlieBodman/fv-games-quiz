@@ -1,6 +1,6 @@
 import Config from '../config';
 import Base from './base';
-import Words from '../words';
+import WordsManager from '../words_manager';
 
 
 /**
@@ -214,7 +214,7 @@ class Categories extends Base
         categoriesGroup.mask = mask;
 
         // Get Category Names
-        const categoryNames = Object.keys(Words.getGroups());
+        const categoryNames = Object.keys(WordsManager.getGroups());
 
         for (let i = 0; i < categoryNames.length; i++)
         {
