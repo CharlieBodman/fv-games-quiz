@@ -155,9 +155,11 @@ class GameTitle extends Base
 
         const dialect = urlParams.get('dialect');
         
+        const endpoint = `${ENV_API_URL}${this.config.endpoints.words.replace("{1}", dialect)}`
+        
         try 
         {
-            const response = await fetch(`${this.config.endpoints.words}?dialect=${dialect}`);
+            const response = await fetch(endpoint);
             
             const responseJson = await response.json();
             
@@ -168,7 +170,7 @@ class GameTitle extends Base
         }
         catch (error)
         {
-            console.log(error);
+            console.error(error);
             /**
              * Here we are going to try fetching words again, 
              * This will utilize a back off retry implementation

@@ -2,4 +2,5 @@
 
 ---
 
-Readme comming soon. 
+**Building**
+`npm run build -- --env.API_URL="https://pznmh01oo9.execute-api.ca-central-1.amazonaws.com/dev/"`

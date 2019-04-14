@@ -66,7 +66,9 @@ class Preload extends Base
      */
     create()
     {
-        this.game.state.start("GameTitle");
+        setTimeout(()=>{
+            this.game.state.start("GameTitle");
+        },500);
     }
 }
 

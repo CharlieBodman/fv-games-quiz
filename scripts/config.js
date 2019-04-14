@@ -1,7 +1,7 @@
 let defaultGameConfig = {
 
     endpoints:{
-        words:"/get/words"
+        words:"dialects/{1}/words"
     },
     
     colours:{
