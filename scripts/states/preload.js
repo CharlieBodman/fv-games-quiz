@@ -16,6 +16,7 @@ class Preload extends Base
     init()
     {
         this.config = configManager.getConfig();
+        this.game.load.crossOrigin = 'anonymous';
         this.game.add.text(0, this.game.height, "1.0", { font: `20px ${ this.config.fonts.primary }` });
         this.game.add.text(0, this.game.height, "First Voices", { font: `20px ${ this.config.fonts.secondary }` });
     }
