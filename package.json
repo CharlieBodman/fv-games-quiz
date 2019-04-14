@@ -25,7 +25,7 @@
         "webpack-dev-server": "^3.1.14"
     },
     "dependencies": {
-        "@fpcc/fv-games-framework": "file:../fv-games-framework",
+        "@fpcc/fv-games-framework": "0.0.3",
         "expose-loader": "^0.7.5",
         "fontfaceobserver": "^2.1.0",
         "global": "^4.3.1",
